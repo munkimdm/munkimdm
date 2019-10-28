@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>PayloadIdentifier</key>
+	<string>com.example.tcc</string>
+	<key>_metadata</key>
+	<dict>
+		<key>catalog_promotion_date</key>
+		<string>2019-01-16</string>
+		<key>created_by</key>
+		<string>joncrain</string>
+		<key>creation_date</key>
+		<date>2019-01-09T21:35:10Z</date>
+		<key>munki_version</key>
+		<string>3.5.1.3622</string>
+		<key>os_version</key>
+		<string>10.13.6</string>
+	</dict>
+	<key>autoremove</key>
+	<false/>
+	<key>catalogs</key>
+	<array>
+		<string>testing</string>
+	</array>
+	<key>category</key>
+	<string>Profiles</string>
+	<key>description</key>
+	<string>Settings for Transparency, Consent and Control on Mojave</string>
+	<key>developer</key>
+	<string>joncrain</string>
+	<key>display_name</key>
+	<string>TCC Settings</string>
+	<key>installer_item_hash</key>
+	<string>0fe44e6058809b3a8c5893e10f80dde0652cd7f39b067ea0b9c69bc76269c22b</string>
+	<key>installer_item_location</key>
+	<string>profiles/TCC Settings-1.1.mobileconfig</string>
+	<key>installer_item_size</key>
+	<integer>12</integer>
+	<key>installer_type</key>
+	<string>profile</string>
+	<key>minimum_munki_version</key>
+	<string>2.2</string>
+	<key>minimum_os_version</key>
+	<string>10.14</string>
+	<key>name</key>
+	<string>global-profile-tcc</string>
+	<key>postinstall_script</key>
+	<string></string>
+	<key>preinstall_script</key>
+	<string>#!/usr/bin/python
+
+import os, sys, time, objc
+from subprocess import Popen
+sys.path.append(os.path.realpath("/usr/local/munki/"))
+from munkilib import profiles 
+from Foundation import NSBundle
+
+IOKit_bundle = NSBundle.bundleWithIdentifier_('com.apple.framework.IOKit')
+
+functions = [("IOServiceGetMatchingService", b"II@"),
+             ("IOServiceMatching", b"@*"),
+             ("IORegistryEntryCreateCFProperty", b"@I@@I"),
+            ]
+
+objc.loadBundleFunctions(IOKit_bundle, globals(), functions)
+
+def io_key(keyname):
+    return IORegistryEntryCreateCFProperty(IOServiceGetMatchingService(0, IOServiceMatching("IOPlatformExpertDevice".encode("utf-8"))), keyname, None, 0)
+
+def get_hardware_uuid():
+    return io_key("IOPlatformUUID".encode("utf-8"))
+
+udid = get_hardware_uuid()
+profile_path = '/Library/Managed Installs/Cache/TCC Settings-1.1.mobileconfig'
+profile_identifier = 'com.example.tcc'
+profile = 'TCC Settings-1.1.mobileconfig'
+user = 'user:password'
+url = 'https://micromdm-api.url/api/InstallProfile'
+cmd = '/usr/bin/curl --user %s --header "Content-Type: application/json" --request POST --data \'{"udid":"%s","profile":"%s"}\' %s' % (user, udid, profile, url)
+Popen(cmd, shell=True)
+time.sleep( 5 )
+profiles.record_profile_receipt(profile_path,profile_identifier)
+
+sys.exit(0)</string>
+	<key>requires</key>
+	<array>
+		<string>profile-micromdm_enroll</string>
+	</array>
+	<key>unattended_install</key>
+	<true/>
+	<key>unattended_uninstall</key>
+	<true/>
+	<key>uninstall_method</key>
+	<string>remove_profile</string>
+	<key>uninstall_script</key>
+	<string>#!/usr/bin/python
+
+import os, sys, subprocess
+sys.path.append(os.path.realpath("/usr/local/munki/"))
+
+from munkilib import profiles
+import objc
+from Foundation import NSBundle
+
+IOKit_bundle = NSBundle.bundleWithIdentifier_('com.apple.framework.IOKit')
+
+functions = [("IOServiceGetMatchingService", b"II@"),
+             ("IOServiceMatching", b"@*"),
+             ("IORegistryEntryCreateCFProperty", b"@I@@I"),
+            ]
+
+objc.loadBundleFunctions(IOKit_bundle, globals(), functions)
+
+def io_key(keyname):
+    return IORegistryEntryCreateCFProperty(IOServiceGetMatchingService(0, IOServiceMatching("IOPlatformExpertDevice".encode("utf-8"))), keyname, None, 0)
+
+def get_hardware_uuid():
+    return io_key("IOPlatformUUID".encode("utf-8"))
+
+udid = get_hardware_uuid()
+profile_identifier = 'com.example.tcc'
+user = 'user:password'
+content = '{"udid":"%s","identifier":"%s"}' % (udid,profile_identifier)
+url = 'https://micromdm-api.url/api/RemoveProfile'
+
+subprocess.call(['curl','--user',user,'--header','"Content-Type: application/json"','--request','POST','--data',content,url])
+
+profiles.remove_profile_receipt(profile_identifier)
+
+sys.exit(0)</string>
+	<key>uninstallable</key>
+	<true/>
+	<key>version</key>
+	<string>1.1</string>
+</dict>
+</plist>
