@@ -1,3 +1,5 @@
 flask
 flask_basicauth
 requests
+pylint
+black
