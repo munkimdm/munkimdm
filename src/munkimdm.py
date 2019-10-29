@@ -1,15 +1,20 @@
 #!/usr/bin/env python3
 
-from flask import Flask, request
 import base64
+import os
+
 import requests
-from env import settings
+from flask import Flask, request
 from flask_basicauth import BasicAuth
+
+from dotenv import load_dotenv
+
+load_dotenv()
 
 application = Flask(__name__)
 
-application.config["BASIC_AUTH_USERNAME"] = settings.get("basic_auth_user")
-application.config["BASIC_AUTH_PASSWORD"] = settings.get("basic_auth_password")
+application.config["BASIC_AUTH_USERNAME"] = os.getenv("basic_auth_user")
+application.config["BASIC_AUTH_PASSWORD"] = os.getenv("basic_auth_password")
 basic_auth = BasicAuth(application)
 
 supported_commands = [
@@ -44,8 +49,8 @@ def api(command):
             bytes = f.read()
             payload["Payload"] = base64.b64encode(bytes).decode("ascii")
     requests.post(
-        "{}/v1/commands".format(settings.get("micromdm_url")),
-        auth=("micromdm", settings.get("micromdm_key")),
+        "{}/v1/commands".format(os.getenv("micromdm_url")),
+        auth=("micromdm", os.getenv("micromdm_key")),
         json=payload,
     )
     return "Issuing %s: Success! \n" % command
