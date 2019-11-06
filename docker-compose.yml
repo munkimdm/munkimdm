@@ -1,0 +1,11 @@
+version: '3'
+services:
+    munkimdm:
+        build: .
+        command: gunicorn -b 0.0.0.0:8000 munkimdm:application
+        working_dir: /app
+        env_file:
+          - ./.env
+        ports:
+          - "8000:8000"
+

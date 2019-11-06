@@ -12,6 +12,7 @@ from flask import Flask, request
 from flask_basicauth import BasicAuth
 
 log = logging.getLogger()
+logging.getLogger("requests").setLevel(logging.WARNING)
 coloredlogs.install(
     fmt="[%(asctime)s] [%(levelname)-8s] %(message)s", level="INFO", logger=log
 )
@@ -36,9 +37,11 @@ supported_commands = [
 @basic_auth.required
 def api(command):
     if command not in supported_commands:
-        return f"Command {command} not valid."
+        return f"ERROR: Command '{command}' not valid.\n"
 
     content = request.json
+    if not request.json:
+        return f"ERROR: No JSON payload present.\n"
 
     payload = {"request_type": command}
     payload_keys = [
@@ -50,33 +53,57 @@ def api(command):
         "identifier",  # For RemoveProfile
         "profile",  # For InstallProfile
     ]
+
+    # extract the data from the profile
+    valid_request = False
     for key in payload_keys:
+
         if key in content:
+
             if key == "profile":
                 profile = os.path.join(
                     os.getenv("MUNKI_REPO_PATH"), "pkgs", "profiles", content["profile"]
                 )
+
                 try:
                     with open(profile, "rb") as f:
                         bytes = f.read()
                         payload["Payload"] = base64.b64encode(bytes).decode("ascii")
+
                 except:
-                    log.exception(f"Unable to extract payload from {profile}.")
-                    return
+                    error_message = f"Unable to extract profile '{content['profile']}' from {profile}."
+                    log.exception(error_message)
+                    return f"ERROR: {error_message}\n"
 
             else:
                 payload[key] = content[key]
 
-    api_url = f"{os.getenv('MICROMDM_URL')}/v1/commands"
-    log.debug(f"Posting to {api_url}, payload: \n{json.dumps(payload, intent=4)}")
+            valid_request = True
 
-    response = requests.post(
-        api_url, auth=("micromdm", os.getenv("MICROMDM_KEY")), json=payload,
-    )
-    if response.status_code != 200:
-        log.error(f"API returned status code {response.status_code}.")
-    else:
+    if not valid_request:
+        error_message = f"Command '{command}' specified but no valid identifier found."
+        log.error(error_message)
+        return f"ERROR: {error_message}\n"
+
+    api_url = f"{os.getenv('MICROMDM_URL')}/v1/commands"
+    log.debug(f"Posting to {api_url}, payload: \n{json.dumps(payload, indent=4)}")
+
+    try:
+        response = requests.post(
+            api_url, auth=("micromdm", os.getenv("MICROMDM_KEY")), json=payload,
+        )
+
+    except requests.exceptions.RequestException as e:
+        log.exception(e)
+        return f"ERROR: {e}\n"
+
+    if response.status_code == 200:
         return f"Command '{command}' issued successfully."
+
+    else:
+        error_message = f"API returned status code {response.status_code}."
+        log.error(error_message)
+        return f"ERROR: {error_message}\n"
 
 
 if __name__ == "__main__":
