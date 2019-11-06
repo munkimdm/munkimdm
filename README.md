@@ -9,6 +9,16 @@ Flask app for connecting [Munki](https://github.com/munki/munki) and [MicroMDM](
 * [Creating MunkiMDM Part III](https://joncrain.github.io/2018/11/08/micromdm_munki_partiii.html)
 * [MunkiMDM Update](https://joncrain.github.io/2019/01/29/micromdm_munki_update.html)
 
+## Environment File
+
+Environment variables should be stored in a `.env` file in the following format:
+
+    BASIC_AUTH_USERNAME=username
+    BASIC_AUTH_PASSWORD=password
+    MICROMDM_URL=https://mdm.domain.org
+    MICROMDM_TOKEN=mdm_token
+    MUNKI_REPO_PATH=munki_path
+
 ## Running with Docker
 To run the Flask application within Docker, all that is required is the following:
 
