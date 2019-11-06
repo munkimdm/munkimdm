@@ -8,7 +8,7 @@ import os
 import coloredlogs
 import requests
 from dotenv import load_dotenv
-from flask import Flask, request
+from flask import Flask, request, jsonify, make_response, abort
 from flask_basicauth import BasicAuth
 
 log = logging.getLogger()
@@ -33,15 +33,39 @@ supported_commands = [
 ]
 
 
+class InvalidUsage(Exception):
+    status_code = 400
+
+    def __init__(self, message, status_code=400, payload=None):
+        Exception.__init__(self)
+        self.message = message
+        if status_code is not None:
+            self.status_code = status_code
+        self.payload = payload
+        log.debug(message)
+
+    def to_dict(self):
+        rv = dict(self.payload or ())
+        rv["error"] = self.message
+        return rv
+
+
+@application.errorhandler(InvalidUsage)
+def handle_invalid_usage(error):
+    response = jsonify(error.to_dict())
+    response.status_code = error.status_code
+    return response
+
+
 @application.route("/api/<command>", methods=["GET", "POST"])
 @basic_auth.required
 def api(command):
     if command not in supported_commands:
-        return f"ERROR: Command '{command}' not valid.\n"
+        raise InvalidUsage("Command '{command}' not valid.")
 
     content = request.json
     if not request.json:
-        return f"ERROR: No JSON payload present.\n"
+        raise InvalidUsage("No JSON payload present.")
 
     payload = {"request_type": command}
     payload_keys = [
@@ -71,9 +95,9 @@ def api(command):
                         payload["Payload"] = base64.b64encode(bytes).decode("ascii")
 
                 except:
-                    error_message = f"Unable to extract profile '{content['profile']}' from {profile}."
-                    log.exception(error_message)
-                    return f"ERROR: {error_message}\n"
+                    raise InvalidUsage(
+                        f"Unable to extract profile '{content['profile']}' from {profile}."
+                    )
 
             else:
                 payload[key] = content[key]
@@ -81,9 +105,9 @@ def api(command):
             valid_request = True
 
     if not valid_request:
-        error_message = f"Command '{command}' specified but no valid identifier found."
-        log.error(error_message)
-        return f"ERROR: {error_message}\n"
+        raise InvalidUsage(
+            f"Command '{command}' specified but no valid identifier found."
+        )
 
     api_url = f"{os.getenv('MICROMDM_URL')}/v1/commands"
     log.debug(f"Posting to {api_url}, payload: \n{json.dumps(payload, indent=4)}")
@@ -94,16 +118,13 @@ def api(command):
         )
 
     except requests.exceptions.RequestException as e:
-        log.exception(e)
-        return f"ERROR: {e}\n"
+        raise InvalidUsage(e)
 
     if response.status_code == 200:
         return f"Command '{command}' issued successfully."
 
     else:
-        error_message = f"API returned status code {response.status_code}."
-        log.error(error_message)
-        return f"ERROR: {error_message}\n"
+        raise InvalidUsage(f"API returned status code {response.status_code}.")
 
 
 if __name__ == "__main__":
