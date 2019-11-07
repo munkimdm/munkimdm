@@ -10,6 +10,7 @@ import requests
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify, make_response, abort
 from flask_basicauth import BasicAuth
+from healthcheck import HealthCheck
 
 log = logging.getLogger()
 logging.getLogger("requests").setLevel(logging.WARNING)
@@ -24,6 +25,9 @@ application = Flask(__name__)
 application.config["BASIC_AUTH_USERNAME"] = os.getenv("BASIC_AUTH_USERNAME")
 application.config["BASIC_AUTH_PASSWORD"] = os.getenv("BASIC_AUTH_PASSWORD")
 basic_auth = BasicAuth(application)
+
+healthz = HealthCheck()
+application.add_url_rule("/healthz", "healthz", view_func=lambda: healthz.run())
 
 supported_commands = [
     "RestartDevice",
@@ -88,12 +92,10 @@ def api(command):
                 profile = os.path.join(
                     os.getenv("MUNKI_REPO_PATH"), "pkgs", "profiles", content["profile"]
                 )
-
                 try:
                     with open(profile, "rb") as f:
                         bytes = f.read()
                         payload["Payload"] = base64.b64encode(bytes).decode("ascii")
-
                 except:
                     raise InvalidUsage(
                         f"Unable to extract profile '{content['profile']}' from {profile}."
