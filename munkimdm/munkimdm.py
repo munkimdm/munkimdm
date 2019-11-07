@@ -30,10 +30,8 @@ healthz = HealthCheck()
 application.add_url_rule("/healthz", "healthz", view_func=lambda: healthz.run())
 
 supported_commands = [
-    "RestartDevice",
     "InstallProfile",
     "RemoveProfile",
-    "ShutDownDevice",
 ]
 
 
