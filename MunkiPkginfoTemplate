@@ -65,8 +65,8 @@ curl --request POST \
 DEVICE=`ioreg -d2 -c IOPlatformExpertDevice | awk -F\" '/IOPlatformUUID/{print $(NF-1)}'`
 
 curl --request POST \
-  --url https://micromdm.ecuad.ca/api/RemoveProfile \
-  --header 'authorization: Basic bWFjYWRtaW46dHkxb24yaW4z' \
+  --url https://middleware.domain.com/api/RemoveProfile \
+  --header 'authorization: Basic XXXXXXXXXXXXX' \
   --header 'content-type: application/json; charset=utf-8' \
   --data '{
 	"request_type" : "RemoveProfile",
