@@ -44,7 +44,7 @@ fi</string>
 DEVICE=`ioreg -d2 -c IOPlatformExpertDevice | awk -F\" '/IOPlatformUUID/{print $(NF-1)}'`
 
 curl --request POST \
-  --url https://micromdm.ecuad.ca/api/InstallProfile \
+  --url https://middleware.domain.com/api/InstallProfile \
   --header 'authorization: Basic XXXXXXXXXXXXX' \
   --header 'content-type: application/json; charset=utf-8' \
   --data '{
