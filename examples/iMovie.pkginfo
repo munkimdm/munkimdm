@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>autoremove</key>
+	<false/>
+	<key>catalogs</key>
+	<array>
+		<string>Faculty</string>
+		<string>Staff</string>
+		<string>Testing</string>
+		<string>Lab</string>
+		<string>Kiosk</string>
+	</array>
+	<key>category</key>
+	<string>Apps</string>
+	<key>description</key>
+	<string></string>
+	<key>developer</key>
+	<string>Apple</string>
+	<key>display_name</key>
+	<string>iMovie</string>
+	<key>installer_type</key>
+	<string>nopkg</string>
+	<key>installs</key>
+	<array>
+		<dict>
+			<key>CFBundleIdentifier</key>
+			<string>com.apple.iMovieApp</string>
+			<key>CFBundleName</key>
+			<string>iMovie</string>
+			<key>CFBundleShortVersionString</key>
+			<string>10.1.15</string>
+			<key>CFBundleVersion</key>
+			<string>358560</string>
+			<key>minosversion</key>
+			<string>10.14.6</string>
+			<key>path</key>
+			<string>/Applications/iMovie.app</string>
+			<key>type</key>
+			<string>application</string>
+			<key>version_comparison_key</key>
+			<string>CFBundleShortVersionString</string>
+		</dict>
+	</array>
+	<key>minimum_os_version</key>
+	<string>10.14.6</string>
+	<key>name</key>
+	<string>iMovie</string>
+	<key>notes</key>
+	<string>VPP App Store app</string>
+	<key>postinstall_script</key>
+	<string>#!/bin/bash
+DEVICE=$(ioreg -d2 -c IOPlatformExpertDevice | awk -F\" '/IOPlatformUUID/{print $(NF-1)}')
+SERIAL=$(ioreg -d2 -c IOPlatformExpertDevice | awk -F\" '/IOPlatformSerialNumber/{print $(NF-1)}')
+curl --request POST \
+  --url https://middleware.domain.com/api/InstallApplication \
+  --header 'authorization: Basic XXXXXXXXXXXXXXX' \
+  --header 'content-type: application/json' \
+  --data '{
+    "request_type":"InstallApplication",
+	"udid" : "'"$DEVICE"'",
+	"serial" : "'"$SERIAL"'",
+	"itunes_store_id" : "408981434"
+}'</string>
+	<key>receipts</key>
+	<array>
+		<dict>
+			<key>packageid</key>
+			<string>com.apple.iMovieApp</string>
+			<key>version</key>
+			<string>10.1.15</string>
+		</dict>
+	</array>
+	<key>requires</key>
+	<array>
+		<string>EnrollmentProfile</string>
+	</array>
+	<key>unattended_install</key>
+	<true/>
+	<key>unattended_uninstall</key>
+	<true/>
+	<key>uninstall_method</key>
+	<string>uninstall_script</string>
+	<key>uninstall_script</key>
+	<string>#!/bin/bash
+rm -rf /Applications/iMovie.app</string>
+	<key>uninstallcheck_script</key>
+	<string>#!/bin/bash
+if [ -d /Applications/iMovie.app ]; then
+	exit 0
+else
+	exit 1
+fi</string>
+	<key>uninstallable</key>
+	<true/>
+	<key>unused_software_removal_info</key>
+	<dict>
+		<key>removal_days</key>
+		<integer>90</integer>
+	</dict>
+	<key>version</key>
+	<string>10.1.15</string>
+</dict>
+</plist>
