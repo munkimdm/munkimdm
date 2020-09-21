@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>PayloadIdentifier</key>
+	<string>ca.ecuad.macadmin.PROFILE_NAME</string>
+	<key>autoremove</key>
+	<false/>
+	<key>catalogs</key>
+	<array>
+		<string>testing</string>
+	</array>
+	<key>category</key>
+	<string>Prefs</string>
+	<key>description</key>
+	<string></string>
+	<key>developer</key>
+	<string>MacAdmins</string>
+	<key>display_name</key>
+	<string>PROFILE_NAME</string>
+	<key>icon_name</key>
+	<string>Preferences.png</string>
+	<key>installcheck_script</key>
+	<string>#!/bin/bash
+
+if [[ ! `profiles list | grep PROFILE_IDENTIFIER` ]]; then
+	exit 0
+else
+    exit 1
+fi</string>
+	<key>installer_type</key>
+	<string>nopkg</string>
+	<key>minimum_munki_version</key>
+	<string>2.2</string>
+	<key>minimum_os_version</key>
+	<string>10.7</string>
+	<key>name</key>
+	<string>PROFILE_NAME</string>
+	<key>notes</key>
+	<string>MDM InstallProfile</string>
+	<key>postinstall_script</key>
+	<string>#!/bin/bash
+
+DEVICE=`ioreg -d2 -c IOPlatformExpertDevice | awk -F\" '/IOPlatformUUID/{print $(NF-1)}'`
+
+curl --request POST \
+  --url https://micromdm.ecuad.ca/api/InstallProfile \
+  --header 'authorization: Basic bWFjYWRtaW46dHkxb24yaW4z' \
+  --header 'content-type: application/json; charset=utf-8' \
+  --data '{
+	"request_type" : "InstallProfile",
+	"udid" : "'"$DEVICE"'",
+	"payload" : 
+	"PROFILE_BASE64"
+}'</string>
+	<key>unattended_install</key>
+	<true/>
+	<key>unattended_uninstall</key>
+	<true/>
+	<key>uninstall_method</key>
+	<string>uninstall_script</string>
+	<key>uninstall_script</key>
+	<string>#!/bin/bash
+
+DEVICE=`ioreg -d2 -c IOPlatformExpertDevice | awk -F\" '/IOPlatformUUID/{print $(NF-1)}'`
+
+curl --request POST \
+  --url https://micromdm.ecuad.ca/api/RemoveProfile \
+  --header 'authorization: Basic bWFjYWRtaW46dHkxb24yaW4z' \
+  --header 'content-type: application/json; charset=utf-8' \
+  --data '{
+	"request_type" : "RemoveProfile",
+	"identifier" : "ca.ecuad.macadmin.PROFILE_NAME",
+	"udid" : "'"$DEVICE"'"
+}'</string>
+	<key>uninstallable</key>
+	<true/>
+	<key>version</key>
+	<string>11.0.1</string>
+</dict>
+</plist>
