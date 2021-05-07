@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>PayloadIdentifier</key>
-	<string>ca.ecuad.macadmin.PROFILE_NAME</string>
+	<string>com.domain.PROFILE_NAME</string>
 	<key>autoremove</key>
 	<false/>
 	<key>catalogs</key>
