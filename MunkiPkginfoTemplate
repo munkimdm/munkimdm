@@ -23,7 +23,7 @@
 	<key>installcheck_script</key>
 	<string>#!/bin/bash
 
-if [[ ! `profiles list | grep PROFILE_IDENTIFIER` ]]; then
+if [[ ! $(profiles list | grep PROFILE_IDENTIFIER) ]]; then
 	exit 0
 else
     exit 1
@@ -41,7 +41,7 @@ fi</string>
 	<key>postinstall_script</key>
 	<string>#!/bin/bash
 
-DEVICE=`ioreg -d2 -c IOPlatformExpertDevice | awk -F\" '/IOPlatformUUID/{print $(NF-1)}'`
+DEVICE=$(ioreg -d2 -c IOPlatformExpertDevice | awk -F\" '/IOPlatformUUID/{print $(NF-1)}')
 
 curl --request POST \
   --url https://middleware.domain.com/api/InstallProfile \
@@ -62,7 +62,7 @@ curl --request POST \
 	<key>uninstall_script</key>
 	<string>#!/bin/bash
 
-DEVICE=`ioreg -d2 -c IOPlatformExpertDevice | awk -F\" '/IOPlatformUUID/{print $(NF-1)}'`
+DEVICE=$(ioreg -d2 -c IOPlatformExpertDevice | awk -F\" '/IOPlatformUUID/{print $(NF-1)}')
 
 curl --request POST \
   --url https://middleware.domain.com/api/RemoveProfile \
@@ -70,7 +70,7 @@ curl --request POST \
   --header 'content-type: application/json; charset=utf-8' \
   --data '{
 	"request_type" : "RemoveProfile",
-	"identifier" : "ca.ecuad.macadmin.PROFILE_NAME",
+	"identifier" : "com.domain.PROFILE_NAME",
 	"udid" : "'"$DEVICE"'"
 }'</string>
 	<key>uninstallable</key>
