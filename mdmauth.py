@@ -35,9 +35,9 @@ def api(command):
     check('product_key')                # For ScheduleOSUpdate
     check('install_action')             # For ScheduleOSUpdateScan
     check('force')                      # For ScheduleOSUpdateScan
-    check('payload')	                  # For InstallProfile
+    check('payload')	                # For InstallProfile
     check('identifier')                 # For RemoveProfile
-    check('manifest_url')	              # For InstallEnterpriseApplication
+    check('manifest_url')	            # For InstallEnterpriseApplication
     check('serial')                     # For InstallVPPApplication
     check_int('itunes_store_id')        # For InstallVPPApplication
     if 'InstallApplication' in command:
