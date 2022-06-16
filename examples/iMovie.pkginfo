@@ -7,10 +7,10 @@
 	<key>catalogs</key>
 	<array>
 		<string>Faculty</string>
+		<string>Kiosk</string>
+		<string>Lab</string>
 		<string>Staff</string>
 		<string>Testing</string>
-		<string>Lab</string>
-		<string>Kiosk</string>
 	</array>
 	<key>category</key>
 	<string>Apps</string>
@@ -20,6 +20,10 @@
 	<string>Apple</string>
 	<key>display_name</key>
 	<string>iMovie</string>
+	<key>installed_size</key>
+	<integer>2202009</integer>
+	<key>installer_item_size</key>
+	<integer>2202009</integer>
 	<key>installer_type</key>
 	<string>nopkg</string>
 	<key>installs</key>
@@ -30,11 +34,11 @@
 			<key>CFBundleName</key>
 			<string>iMovie</string>
 			<key>CFBundleShortVersionString</key>
-			<string>10.1.15</string>
+			<string>10.3.3</string>
 			<key>CFBundleVersion</key>
 			<string>358560</string>
 			<key>minosversion</key>
-			<string>10.14.6</string>
+			<string>10.15.6</string>
 			<key>path</key>
 			<string>/Applications/iMovie.app</string>
 			<key>type</key>
@@ -44,7 +48,7 @@
 		</dict>
 	</array>
 	<key>minimum_os_version</key>
-	<string>10.14.6</string>
+	<string>10.15.6</string>
 	<key>name</key>
 	<string>iMovie</string>
 	<key>notes</key>
@@ -69,13 +73,11 @@ curl --request POST \
 			<key>packageid</key>
 			<string>com.apple.iMovieApp</string>
 			<key>version</key>
-			<string>10.1.15</string>
+			<string>10.3.3</string>
 		</dict>
 	</array>
 	<key>requires</key>
-	<array>
-		<string>EnrollmentProfile</string>
-	</array>
+	<array/>
 	<key>unattended_install</key>
 	<true/>
 	<key>unattended_uninstall</key>
@@ -84,14 +86,19 @@ curl --request POST \
 	<string>uninstall_script</string>
 	<key>uninstall_script</key>
 	<string>#!/bin/bash
-rm -rf /Applications/iMovie.app</string>
-	<key>uninstallcheck_script</key>
-	<string>#!/bin/bash
-if [ -d /Applications/iMovie.app ]; then
-	exit 0
-else
-	exit 1
-fi</string>
+rm -rf /Applications/iMovie.app
+DEVICE=$(ioreg -d2 -c IOPlatformExpertDevice | awk -F\" '/IOPlatformUUID/{print $(NF-1)}')
+SERIAL=$(ioreg -d2 -c IOPlatformExpertDevice | awk -F\" '/IOPlatformSerialNumber/{print $(NF-1)}')
+curl --request POST \
+  --url https://micromdm.ecuad.ca/api/DisassociateApplication \
+  --header 'authorization: Basic bWFjYWRtaW46TXFKamI4NFFQ' \
+  --header 'content-type: application/json' \
+  --data '{
+    "request_type":"DisassociateApplication",
+	"udid" : "'"$DEVICE"'",
+	"serial" : "'"$SERIAL"'",
+	"itunes_store_id" : "408981434"
+}'</string>
 	<key>uninstallable</key>
 	<true/>
 	<key>unused_software_removal_info</key>
@@ -100,6 +107,6 @@ fi</string>
 		<integer>90</integer>
 	</dict>
 	<key>version</key>
-	<string>10.1.15</string>
+	<string>10.3.3</string>
 </dict>
 </plist>
