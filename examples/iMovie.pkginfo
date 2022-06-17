@@ -90,8 +90,8 @@ rm -rf /Applications/iMovie.app
 DEVICE=$(ioreg -d2 -c IOPlatformExpertDevice | awk -F\" '/IOPlatformUUID/{print $(NF-1)}')
 SERIAL=$(ioreg -d2 -c IOPlatformExpertDevice | awk -F\" '/IOPlatformSerialNumber/{print $(NF-1)}')
 curl --request POST \
-  --url https://micromdm.ecuad.ca/api/DisassociateApplication \
-  --header 'authorization: Basic bWFjYWRtaW46TXFKamI4NFFQ' \
+  --url https://middleware.domain.com/api/DisassociateApplication \
+  --header 'authorization: Basic XXXXXXXXXXXXXXX' \
   --header 'content-type: application/json' \
   --data '{
     "request_type":"DisassociateApplication",
