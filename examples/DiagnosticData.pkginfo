@@ -27,7 +27,7 @@
 	<key>installcheck_script</key>
 	<string>#!/bin/bash
 
-if [[ ! `profiles list | grep com.domain.macadmin.DiagnosticData` ]]; then
+if [[ ! $(system_profiler SPConfigurationProfileDataType | grep 120C60AF-E7C1-40DD-86F9-9A87A9A07748) ]]; then
 	exit 0
 
 else
@@ -46,7 +46,7 @@ fi</string>
 	<key>postinstall_script</key>
 	<string>#!/bin/bash
 
-DEVICE=`ioreg -d2 -c IOPlatformExpertDevice | awk -F\" '/IOPlatformUUID/{print $(NF-1)}'`
+DEVICE=$(ioreg -d2 -c IOPlatformExpertDevice | awk -F\" '/IOPlatformUUID/{print $(NF-1)}')
 
 curl --request POST \
   --url https://middleware.domain.com/api/InstallProfile \

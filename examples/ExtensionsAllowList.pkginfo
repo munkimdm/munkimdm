@@ -27,7 +27,7 @@
 	<key>installcheck_script</key>
 	<string>#!/bin/bash
 
-if [[ ! `profiles list | grep com.domain.macadmin.ExtensionsAllowList` ]]; then
+if [[ ! $(system_profiler SPConfigurationProfileDataType | grep 6ECA52FE-D13B-4407-AF9C-313F3C939457) ]]; then
 	exit 0
 else
     exit 1
@@ -37,7 +37,7 @@ fi</string>
 	<key>minimum_munki_version</key>
 	<string>2.2</string>
 	<key>minimum_os_version</key>
-	<string>10.14</string>
+	<string>10.15</string>
 	<key>name</key>
 	<string>ExtensionsAllowList</string>
 	<key>notes</key>
@@ -45,7 +45,7 @@ fi</string>
 	<key>postinstall_script</key>
 	<string>#!/bin/bash
 
-DEVICE=`ioreg -d2 -c IOPlatformExpertDevice | awk -F\" '/IOPlatformUUID/{print $(NF-1)}'`
+DEVICE=$(ioreg -d2 -c IOPlatformExpertDevice | awk -F\" '/IOPlatformUUID/{print $(NF-1)}')
 
 curl --request POST \
   --url https://middleware.domain.com/api/InstallProfile \
@@ -66,7 +66,7 @@ curl --request POST \
 	<key>uninstall_script</key>
 	<string>#!/bin/bash
 
-DEVICE=`ioreg -d2 -c IOPlatformExpertDevice | awk -F\" '/IOPlatformUUID/{print $(NF-1)}'`
+DEVICE=$(ioreg -d2 -c IOPlatformExpertDevice | awk -F\" '/IOPlatformUUID/{print $(NF-1)}')
 
 curl --request POST \
   --url https://middleware.domain.com/api/RemoveProfile \
@@ -80,6 +80,6 @@ curl --request POST \
 	<key>uninstallable</key>
 	<true/>
 	<key>version</key>
-	<string>10.15</string>
+	<string>11.5</string>
 </dict>
 </plist>

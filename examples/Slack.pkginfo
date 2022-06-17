@@ -6,6 +6,10 @@
 	<false/>
 	<key>autoremove</key>
 	<false/>
+	<key>blocking_applications</key>
+	<array>
+		<string>Slack</string>
+	</array>
 	<key>catalogs</key>
 	<array>
 		<string>Staff</string>
@@ -34,9 +38,9 @@
 			<key>CFBundleName</key>
 			<string>Slack</string>
 			<key>CFBundleShortVersionString</key>
-			<string>4.9.0</string>
+			<string>4.26.0</string>
 			<key>CFBundleVersion</key>
-			<string>6255</string>
+			<string>6483</string>
 			<key>minosversion</key>
 			<string>10.10</string>
 			<key>path</key>
@@ -73,12 +77,8 @@ curl --request POST \
 			<key>packageid</key>
 			<string>com.tinyspeck.slackmacgap</string>
 			<key>version</key>
-			<string>4.9.0</string>
+			<string>4.26.0</string>
 		</dict>
-	</array>
-	<key>requires</key>
-	<array>
-		<string>EnrollmentProfile</string>
 	</array>
 	<key>unattended_install</key>
 	<true/>
@@ -89,7 +89,18 @@ curl --request POST \
 	<key>uninstall_script</key>
 	<string>#!/bin/bash
 rm -rf /Applications/Slack.app
-</string>
+DEVICE=$(ioreg -d2 -c IOPlatformExpertDevice | awk -F\" '/IOPlatformUUID/{print $(NF-1)}')
+SERIAL=$(ioreg -d2 -c IOPlatformExpertDevice | awk -F\" '/IOPlatformSerialNumber/{print $(NF-1)}')
+curl --request POST \
+  --url https://middleware.domain.com/api/DisassociateApplication \
+  --header 'authorization: Basic XXXXXXXXXXXXXXX' \
+  --header 'content-type: application/json' \
+  --data '{
+    "request_type":"DisassociateApplication",
+	"udid" : "'"$DEVICE"'",
+	"serial" : "'"$SERIAL"'",
+	"itunes_store_id" : "803453959"
+}'</string>
 	<key>uninstallable</key>
 	<true/>
 	<key>uninstallcheck_script</key>
@@ -100,6 +111,6 @@ else
 	exit 1
 fi</string>
 	<key>version</key>
-	<string>4.9.0</string>
+	<string>4.26.0</string>
 </dict>
 </plist>
